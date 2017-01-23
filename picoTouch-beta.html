@@ -1,0 +1,225 @@
+<html><head>
+	<title>PicoTOUCH</title>
+	<link rel="apple-touch-icon" href="assets/icon.png" />
+	<meta charset="utf-8" />
+	<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+	<meta name="apple-mobile-web-app-capable" content="yes" />
+	<meta name="apple-mobile-web-app-status-bar-style" content="black" />
+	<meta name="viewport" content="width=device-width, minimal-ui, initial-scale=1, maximum-scale=1, user-scalable=0" />
+	<style>
+		* { margin: 0; padding: 0; }
+		body { display: flex; flex-direction: column; justify-content: space-between; min-height: 100%; background: black; }
+		#menu { position: fixed; width: 50px; height: 50px; background: url('assets/menu.png') no-repeat; background-size: contain; }
+		#dPad { position: fixed; top: 0; left: 0; width: 50%; height: 33%; background: url('assets/dPad.png') center no-repeat; background-size: 80%; }
+		#btns { display: inline-flex; flex-flow: column nowrap; position: fixed; height: 33%; }
+		#oBtn { width: 100%; height: 50%; background: url('assets/oBtn.png') center no-repeat; background-size: 80%; }
+		#xBtn { width: 100%; height: 50%; background: url('assets/xBtn.png') center no-repeat; background-size: 80%; }
+		canvas { image-rendering: optimizeSpeed; image-rendering: -moz-crisp-edges; image-rendering: -webkit-optimize-contrast; image-rendering: optimize-contrast; image-rendering: pixelated; -ms-interpolation-mode: nearest-neighbor; border: none; }
+		#game { position: fixed; width: 100%; height: 50%; }
+	</style>
+</head>
+
+<body onload="updateLayout();" onorientationchange="updateLayout();">
+	<canvas class="emscripten" id="game" oncontextmenu="event.preventDefault();"></canvas>
+	
+<!-- Hammer.js Touch Emulator for debugging on PC 
+<script src="src/touch-emulator.js"></script>
+<script> TouchEmulator(); </script> -->
+
+<!-- Touch controls -->
+<script>
+	var cart = document.createElement("script"),
+		pico8_buttons = [0, 0, 0, 0, 0, 0, 0, 0],
+		touch_detected = false,
+		game = document.getElementById("game"),
+		menu = document.createElement("div"),
+		dPad = document.createElement("div"),
+		btns = document.createElement("div"),
+		oBtn = document.createElement("div"),
+		xBtn = document.createElement("div"),
+		Module = {},
+		w, h, mX, mY, dW, dH, dX, dY, bW, bH, bX, bY, layout, device;
+	
+	// Set cartridge
+	cart.src = "carts/picomenu.js";
+	
+	Module.canvas = game;
+	
+	// Add selected cart source to page
+	document.body.appendChild(cart);
+	
+	// Add control elements
+	document.body.appendChild(menu);
+	menu.id = "menu";
+	document.body.appendChild(dPad);
+	dPad.id = "dPad";
+	document.body.appendChild(btns);
+	btns.id = "btns";
+	btns.appendChild(oBtn);
+	oBtn.id = "oBtn";
+	btns.appendChild(xBtn);
+	xBtn.id = "xBtn";
+	
+	// Prevent scrolling on touch
+	document.addEventListener('touchstart', function(e) {e.preventDefault()}, false);
+	
+	function updateLayout() {
+		// Calculate screen & element dimensions
+		w = document.body.clientWidth;
+		h = document.body.clientHeight;
+		
+		// Determine device orientation
+		(h > w) ? layout = "portrait" : layout = "landscape";
+		
+		// Determine screen size
+		((layout == "portrait" && w < 415) || (layout == "landscape" && w <= 737)) ? device = "small" : device = "big";
+		
+		if (device == "small") {
+			if (layout == "portrait") {
+				game.style.width = w;
+				game.style.height = w;
+				game.style.left = 0;
+				menu.style.visibility = "hidden";
+				dW = h / 3;
+				dH = h / 3;
+				dX = 0;
+				dY = h - dH;
+				bW = w / 3;
+				bH = h / 3;
+				bX = w - bW;
+				bY = h - bH;
+			} else if (layout == "landscape") {
+				game.style.width = h;
+				game.style.left = (w / 2) - (h / 2);
+				menu.style.visibility = "visible";
+				dW = w / 4;
+				dH = w / 4;
+				dX = 0;
+				dY = h - dH;
+				bW = h / 3;
+				bH = w / 4;
+				bX = w - bW;
+				bY = h - bH;
+			}
+		} else if (device == "big") {
+			if (layout == "portrait") {
+				game.style.width = w * .8;
+				game.style.height = w * .8;
+				game.style.top = w * .05;
+				game.style.left = w * .1;
+				menu.style.visibility = "visible";
+				dW = h / 6;
+				dH = h / 6;
+				dX = 0;
+				dY = h - dH;
+				bW = w / 7;
+				bH = h / 6;
+				bX = w - bW;
+				bY = h - bH;
+			} else if (layout == "landscape") {
+				game.style.width = h;
+				game.style.height = h;
+				game.style.top = 0;
+				game.style.left = (w / 2) - (h / 2);
+				menu.style.visibility = "visible";
+				dW = h / 5;
+				dH = h / 5;
+				dX = 0;
+				dY = h - dH;
+				bW = w / 9;
+				bH = h / 4;
+				bX = w - bW;
+				bY = h - bH;
+			}
+		}
+		
+		console.log("orientation: " + layout + ", size: " + device);
+		
+		// Position controls
+		dPad.style.top = dY;
+		dPad.style.left = dX;
+		dPad.style.width = dW;
+		dPad.style.height = dH;
+		btns.style.top = bY;
+		btns.style.left = bX;
+		btns.style.width = bW;
+		btns.style.height = bH;
+	}
+	
+	function press_pico8_button(pl, which, state) {
+		if (state == 0)
+			pico8_buttons[pl] &= ~(1 << which);
+		else
+			pico8_buttons[pl] |= (1 << which);
+	}
+	
+	function abs(x){return x < 0 ? -x : x;}
+	
+	function pico8_buttons_event(e, step) {
+		// "0" = down, "1" = drag, "2" = up
+		pico8_buttons[0] = 0;
+		
+		var num = 0;
+		
+		if (e.touches) num = e.touches.length;
+		
+		for (var i = 0; i < num; i++) {
+			var touch = null;
+			touch = e.touches[i];
+			
+			var x = touch.clientX,
+				y = touch.clientY;
+			
+			// determine mask to clear (mask) and mask to set (b) for button state changes.
+			b = 0;
+			
+			// Menu button
+			if (layout == "portrait" && device == "small") {
+				if (y < (w - w / 6)) b |= 0x40;
+			} else if (layout == "landscape") {
+				if (y < 50 && x < 50) b |= 0x40;
+			}
+			
+			// dpad
+			if ((x < dW) && (y > dY)) {
+				var cx = dW / 2,
+					cy = h-(dH / 2),
+					dx = x - cx,
+					dy = y - cy;
+				
+				deadzone = 15;
+				mask = 0xf;
+				
+				// horizontal
+				if (abs(dx) > abs(dy) * 0.45){
+					if (dx < -deadzone) b |= 0x1;
+					if (dx > deadzone) b |= 0x2;
+				}
+				
+				// vertical
+				if (abs(dy) > abs(dx) * 0.45){
+					if (dy < -deadzone) b |= 0x4;
+					if (dy > deadzone) b |= 0x8;
+				}
+			} else {
+				// button; diagonal split from bottom right corner
+				mask = 0x0;
+				
+				if (x > bX) {
+					// "O" button
+					if ((y > bY) && ((h - y) > (bH / 2) * 0.95)) b |= 0x10;
+					// "X" button
+					if ((bH / 2) > (h - y) * 0.95) b |= 0x20;
+				}
+			}
+			pico8_buttons[0] |= b;
+		}
+	}
+	
+	addEventListener("touchstart", function(event){touch_detected = true; pico8_buttons_event(event, 0);}, false);
+	
+	addEventListener("touchmove", function(event){pico8_buttons_event(event, 1);}, false);
+	
+	addEventListener("touchend", function(event){pico8_buttons_event(event, 2);}, false);
+</script>
+</body></html>
