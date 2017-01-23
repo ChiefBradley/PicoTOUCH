@@ -14,17 +14,16 @@ This project aims to do a few things:
 - The page is web-app ready, and can be saved to the iOS homescreen and run just like an app—sound and all.
 - Touch controls have been successfully implemented and are in a usable state, including the in-game pause function.
 - Supports both portrait and landscape orientations.
-- Supports phone and tablet screen sizes. 
+- Supports phone and tablet screen sizes.
+- Includes a curated 15-cart library.
 
 ## To-Do
 ### // Things to Fix
-- Menu button on tablets in portrait mode. 
-- Limit touch input to button areas. 
-- Layouts on non-iOS mobile devices. 
+- Menu button on tablets in portrait mode.
+- Layouts on non-iOS mobile devices.
+- ~~Limit touch input to button areas.~~
 
 ### // Things to Add
-- Prefer external audio. 
+- Prefer external audio.
 - Mute button.
-
-### // Stretch Goals
-- Add a curated cart library and the ability to change carts on-the-fly through the menu. 
+- Add the ability to change games on-the-fly without restarting the app/reloading the page.
