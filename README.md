@@ -9,8 +9,6 @@ This project aims to do a few things:
 - Beat the existing html into a responsive, mobile-ready webpage
 - Add web-app functionality for iOS, allowing the page to be saved to the homescreen and used like a native app (complete with *sound!*), without all of the obstructive Safari UI.
 
----
-
 ## :: Usage
 If you'd like to use PicoTOUCH to play your own Pico-8 games on mobile, good news—it couldn't be easier. 
 
@@ -23,8 +21,6 @@ With that done, all that's left to do is host your PicoTOUCH folder somewhere, o
 
 *(Alternatively: if you, like me, don't have a spare domain and hosting service lying around, you can do all of the steps above on iOS using the wonderful "Textastic Code Editor" app, and play your game using it's handy-dandy "Preview in Safari" feature. While I'm sure this can be done on Android in a similar fashion, I don't have one, so you'll have to hunt for a similar app yourself.)*
 
----
-
 ## :: Known Bugs and Troubleshooting
 ### // ISSUE:
 Sometimes, for reasons currently unknown, JavaScript files exported using the most current version of Pico-8 sometimes fail to load. This manifests as PicoTOUCH opening, the Pico-8 boot screen running, and then Pico-8 gets hung up and never actually runs the game—it just sits on the "`booting...`" message forever.
@@ -34,8 +30,6 @@ Presently, there are no sure-fire fixes. I have been able to get carts that fail
 
 In fact, if you have this issue and discover the cause or even the solution, I would greatly appreciate your report!
 
----
-
 ## :: Project Achievements
 - The page is now responsive and looks very pretty indeed (*at least using an iPhone 7, which is all I have to test with.*)
 - The page is web-app ready, and can be saved to the iOS homescreen and run just like an app—sound and all.
@@ -43,8 +37,6 @@ In fact, if you have this issue and discover the cause or even the solution, I w
 - Supports both portrait and landscape orientations.
 - Supports phone and tablet screen sizes.
 - Includes a curated 15-cart library.
-
----
 
 ## :: To-Do
 ### // Things to Fix
